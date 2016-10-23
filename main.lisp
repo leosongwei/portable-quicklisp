@@ -80,7 +80,23 @@
                    (push tree dir-list)
                    (mapcar #'flatten-tree tree))))
       (flatten-tree dir-tree))
-    (setf dir-list
-          (mapcar #'namestring dir-list))
-    (merge-path dir-list)))
+    (mapcar #'namestring dir-list)))
+
+(defun depend-dir-list-systems (system-list)
+  (merge-path
+   (apply #'append (mapcar #'depend-dir-list system-list))))
+;; (depend-dir-list-systems '(cl-markdown cl-ncurses cl-ppcre))
+
+(defun make-depend-dir ()
+  #+sbcl
+  (sb-ext:run-program "/bin/mkdir" '("depend")
+                      :output *standard-output*)
+  #- (or sbcl)
+  (error "make-depend-dir: Don't know how to mkdir!"))
+
+(defun copy-depend (dir-list)
+  #+sbcl
+  (sb-ext:run-program "/bin/cp" `("-v" "-r" ,@dir-list "./depend")
+                      :output *standard-output*))
+
 
